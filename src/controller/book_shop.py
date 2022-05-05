@@ -40,10 +40,11 @@ class BookShop:
     def checkout(self, checkout_id: UUID) -> "Receipt":
 
         receipt = self.pre_checkout_data.get(checkout_id).to_Receipt()
-        for i in receipt.items:
+
+        for i in receipt.items.values():
             if self.items[i["item"].id].quota < i["quota"]:
                 raise ValueError("Quota not enough")
-        for i in receipt.items:
+        for i in receipt.items.values():
             self.items[i["item"].id].quota -= i["quota"]
         return receipt
 
@@ -52,20 +53,24 @@ class Checkout:
     def __init__(self, item_list: List[Dict[str, "Book"]]) -> None:
         self.checkout_status = False
         self.checkout_id = uuid4()
-        self.items = item_list
+        self.items: dict = self.get_items(item_list)
         self.price = self.get_price()
 
-    def get_price(self):
-
+    def get_items(self, item_list):
         # merge same items
         _temp = {}
-        for i in self.items:
+        for i in item_list:
             if _temp.get(i["item"].id):
                 _temp[i["item"].id]["quota"] += i["quota"]
                 continue
             _temp[i["item"].id] = i
+
+        return _temp
+
+    def get_price(self):
+
         price = 0
-        for item in _temp.values():
+        for item in self.items.values():
             price += item["item"].price * item["quota"]
         discount = {
             1: 1,
@@ -75,15 +80,17 @@ class Checkout:
             5: 0.75,
         }
 
-        return round(price * discount.get(len(_temp), 0.75))
+        return round(price * discount.get(len(self.items), 0.75))
 
     def to_Receipt(self):
-        return Receipt(self.items)
+        return Receipt(self.checkout_id, self.items, self.price)
 
 
-class Receipt(Checkout):
-    def __init__(self, item_list: List[Dict[str, "Book"]]) -> None:
-        super().__init__(item_list)
+class Receipt:
+    def __init__(self, checkout_id: UUID, items: dict, price: int) -> None:
+        self.checkout_id = checkout_id
+        self.items: dict = items
+        self.price = price
         self.checkout_status = True
         self.receipt_id = uuid4()
 
