@@ -25,11 +25,12 @@ jobs:
     - name: Build coverage file
       run: |
         cd src/
-        pytest --cache-clear --cov=./ tests/ > ../pytest-coverage.txt
-    - name: Comment coverage
-      uses: coroo/pytest-coverage-commentator@v1.0.2
+        pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cache-clear --cov=./ tests/ > ../pytest-coverage.txt
+    - name: Pytest coverage comment
+      uses: MishaKav/pytest-coverage-comment@main
       with:
-        pytest-coverage: pytest-coverage.txt
+        pytest-coverage-path: ./pytest-coverage.txt
+
 
   test:
     name: Test
