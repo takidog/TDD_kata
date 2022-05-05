@@ -119,6 +119,31 @@ def test_buy_many():
     assert isinstance(receipt.receipt_id, UUID)
     assert isinstance(receipt.checkout_id, UUID)
 
+    book_item_p1 = shop.add_items(name="b", price=100, quota=10)
+
+    pre_checkout = shop.pre_checkout(
+        item_list=[
+            {"item_id": book_item_p1.id, "quota": 1},
+            {"item_id": book_item_p1.id, "quota": 1},
+            {"item_id": book_item_p1.id, "quota": 1},
+            {"item_id": book_item_p1.id, "quota": 1},
+            {"item_id": book_item_p1.id, "quota": 1},
+            {"item_id": book_item_p1.id, "quota": 1},
+            {"item_id": book_item_p1.id, "quota": 1},
+        ],
+    )
+
+    assert pre_checkout.price == 100 * 7 * 1
+    assert len(pre_checkout.items) == 1
+    assert isinstance(pre_checkout.checkout_id, UUID)
+
+    receipt = shop.checkout(checkout_id=pre_checkout.checkout_id)
+
+    assert receipt.price == 100 * 7 * 1
+    assert len(receipt.items) == 1
+    assert isinstance(receipt.receipt_id, UUID)
+    assert isinstance(receipt.checkout_id, UUID)
+
 
 def test_not_found_item():
     shop = BookShop()
