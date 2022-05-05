@@ -1,5 +1,5 @@
 from controller.book_shop import BookShop, Book
-from uuid import UUID
+from uuid import UUID, uuid4
 
 
 def test_product_listing():
@@ -118,3 +118,32 @@ def test_buy_many():
     assert len(receipt.items) == 5
     assert isinstance(receipt.receipt_id, UUID)
     assert isinstance(receipt.checkout_id, UUID)
+
+
+def test_not_found_item():
+    shop = BookShop()
+
+    book_item_p1 = shop.add_items(name="Potter Part.1", price=100, quota=10)
+
+    test_uuid = uuid4()
+    try:
+        _ = shop.pre_checkout(
+            item_list=[
+                {"item_id": book_item_p1.id, "quota": 5},
+                {"item_id": test_uuid, "quota": 2},
+            ],
+        )
+    except ValueError as e:
+        assert e.args[0] == "Not found this items."
+
+
+def test_get_items():
+    shop = BookShop()
+
+    shop.add_items(name="Potter Part.1", price=100, quota=10)
+    shop.add_items(name="Potter Part.2", price=100, quota=10)
+    shop.add_items(name="Potter Part.3", price=100, quota=10)
+
+    item_list = shop.get_books_list()
+
+    assert len(item_list) == 3
