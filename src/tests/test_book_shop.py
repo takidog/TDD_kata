@@ -12,4 +12,4 @@ def test_product_listing():
 
     assert book_item.quota == 10
 
-    assert shop.get_items(book_id=book_item.id) == book_item.id
+    assert shop.get_item(book_id=book_item.id).id == book_item.id
