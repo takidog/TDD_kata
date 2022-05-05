@@ -36,7 +36,11 @@ def test_buy_one():
 
     book_item = shop.add_items(name="Potter Part.1", price=100, quota=10)
 
-    pre_checkout = shop.pre_checkout(item_list=[book_item.id])
+    pre_checkout = shop.pre_checkout(
+        item_list=[
+            {"item_id": book_item.id, "quota": 1},
+        ],
+    )
 
     assert pre_checkout.price == 100
     assert len(pre_checkout.items) == 1
