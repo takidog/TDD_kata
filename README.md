@@ -13,7 +13,9 @@ cd src
 
 pip3 install -r requirements.txt
 
-pytest --cov=./ --cov-report=html tests/  
+pytest --cov=./ tests/
+
+# pytest --cov=./ --cov-report=html tests/  
 
 ```
 
