@@ -41,7 +41,7 @@ class BookShop:
 
         receipt = self.pre_checkout_data.get(checkout_id).to_Receipt()
         for i in receipt.items:
-            if self.items[i["item"].id].quota > i["quota"]:
+            if self.items[i["item"].id].quota < i["quota"]:
                 raise ValueError("Quota not enough")
         for i in receipt.items:
             self.items[i["item"].id].quota -= i["quota"]
@@ -67,8 +67,15 @@ class Checkout:
         price = 0
         for item in _temp.values():
             price += item["item"].price * item["quota"]
+        discount = {
+            1: 1,
+            2: 0.95,
+            3: 0.9,
+            4: 0.8,
+            5: 0.75,
+        }
 
-        return price
+        return round(price * discount.get(len(_temp), 0.75))
 
     def to_Receipt(self):
         return Receipt(self.items)
@@ -79,7 +86,6 @@ class Receipt(Checkout):
         super().__init__(item_list)
         self.checkout_status = True
         self.receipt_id = uuid4()
-        # self.price = super().get_price()  # re calc
 
 
 class Book:
