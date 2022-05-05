@@ -29,3 +29,26 @@ def test_book_model():
 
     required_keys = ["id", "name", "price", "quota"]
     assert all([k in book_dict.keys() for k in required_keys])
+
+
+def test_buy_one():
+    shop = BookShop()
+
+    book_item = shop.add_items(name="Potter Part.1", price=100, quota=10)
+
+    pre_checkout = shop.pre_checkout(item_list=[book_item.id])
+
+    assert pre_checkout.price == 100
+    assert len(pre_checkout.items) == 1
+    assert isinstance(pre_checkout.checkout_id, UUID)
+
+    receipt = shop.checkout(checkout_id=pre_checkout.checkout_id)
+
+    assert receipt.price == 100
+    assert len(receipt.items) == 1
+    assert isinstance(receipt.receipt_id, UUID)
+    assert isinstance(receipt.checkout_id, UUID)
+
+
+def test_buy_many():
+    pass
